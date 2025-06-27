@@ -12,19 +12,11 @@ import Contact from './components/Contact';
 import Resources from './components/Resources';
 import Footer from './components/Footer';
 
-// Home page component that includes all sections
+// Home page component that includes only the Hero section
 const HomePage = () => {
   return (
     <div className="min-h-screen">
       <Hero />
-      <VideoSection />
-      <About />
-      <HistoryMilestones />
-      <Services />
-      <Products />
-      <Projects />
-      <Resources />
-      <Contact />
     </div>
   );
 };

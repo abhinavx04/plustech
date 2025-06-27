@@ -1,5 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Wrench, Settings, Users, TrendingUp, Shield, Lightbulb, Zap, Target, Heart, Star, ArrowRight, CheckCircle, Award, Globe, Bot, Cpu, Factory } from 'lucide-react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+// Register ScrollTrigger plugin
+gsap.registerPlugin(ScrollTrigger);
 
 const Services = () => {
   const [activeService, setActiveService] = useState(0);
@@ -45,60 +50,58 @@ const Services = () => {
     return () => observer.disconnect();
   }, []);
 
-  // Scroll-driven tab switching for Service Principles (3Cs/3Ps)
+  // GSAP ScrollTrigger for Service Principles (3Cs/3Ps)
   useEffect(() => {
-    const handleScroll = () => {
-      if (servicePrinciplesRef.current) {
-        const rect = servicePrinciplesRef.current.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-        const elementTop = rect.top;
-        const elementHeight = rect.height;
-        
-        // Calculate scroll progress within the section
-        const scrollProgress = Math.max(0, Math.min(1, 
-          (windowHeight - elementTop) / (windowHeight + elementHeight)
-        ));
-        
-        // Switch tabs based on scroll position
-        if (scrollProgress > 0.5) {
-          setActiveTab(1); // Switch to 3Ps
-        } else {
-          setActiveTab(0); // Switch to 3Cs
+    if (servicePrinciplesRef.current) {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: servicePrinciplesRef.current,
+          start: "top center",
+          end: "bottom center",
+          scrub: 1,
+          onUpdate: (self) => {
+            const progress = self.progress;
+            if (progress > 0.5) {
+              setActiveTab(1); // Switch to 3Ps
+            } else {
+              setActiveTab(0); // Switch to 3Cs
+            }
+          }
         }
-      }
-    };
+      });
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+      return () => {
+        tl.kill();
+        ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+      };
+    }
   }, []);
 
-  // Scroll-driven tab switching for Robotic Applications
+  // GSAP ScrollTrigger for Robotic Applications
   useEffect(() => {
-    const handleScroll = () => {
-      if (roboticApplicationsRef.current) {
-        const rect = roboticApplicationsRef.current.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-        const elementTop = rect.top;
-        const elementHeight = rect.height;
-        
-        // Calculate scroll progress within the section
-        const scrollProgress = Math.max(0, Math.min(1, 
-          (windowHeight - elementTop) / (windowHeight + elementHeight)
-        ));
-        
-        // Switch tabs based on scroll position (3 sections)
-        if (scrollProgress < 0.33) {
-          setActiveRoboticTab(0); // Robotic Painting
-        } else if (scrollProgress < 0.66) {
-          setActiveRoboticTab(1); // Material Handling
-        } else {
-          setActiveRoboticTab(2); // Digitization
+    if (roboticApplicationsRef.current) {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: roboticApplicationsRef.current,
+          start: "top center",
+          end: "bottom center",
+          scrub: 1,
+          onUpdate: (self) => {
+            const progress = self.progress;
+            if (progress > 0.5) {
+              setActiveRoboticTab(1); // Switch to Material Handling
+            } else {
+              setActiveRoboticTab(0); // Switch to Robotic Painting
+            }
+          }
         }
-      }
-    };
+      });
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+      return () => {
+        tl.kill();
+        ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+      };
+    }
   }, []);
 
   // Auto-scroll effect for robotic images
@@ -234,55 +237,6 @@ const Services = () => {
         'Multi-section Operations'
       ],
       image: '/material-handling.jpg' // Placeholder
-    },
-    {
-      id: 'smart-factory',
-      title: 'Digitization & Smart Factory',
-      subtitle: 'IoT-based intelligent solutions',
-      icon: Cpu,
-      color: 'purple',
-      description: 'Advanced digitization solutions with IoT architecture for comprehensive plant optimization and smart factory implementation.',
-      features: [
-        'IoT Architecture',
-        'Real-time Monitoring',
-        'Predictive Analytics',
-        'Smart Automation',
-        'Data-driven Decisions',
-        'Plant Optimization',
-        'Intelligent Systems'
-      ],
-      image: '/smart-factory.jpg' // Placeholder
-    }
-  ];
-
-  const smartFactoryLayers = [
-    {
-      number: 1,
-      title: "Visualization",
-      description: "Record, display and disseminate real-time operational data",
-      color: "blue",
-      icon: "📊"
-    },
-    {
-      number: 2,
-      title: "Monitoring",
-      description: "Controlling plant operations within pre-defined process limits",
-      color: "red",
-      icon: "🔍"
-    },
-    {
-      number: 3,
-      title: "Optimization",
-      description: "Operational optimization leading to increased productivity",
-      color: "purple",
-      icon: "⚡"
-    },
-    {
-      number: 4,
-      title: "Strategic",
-      description: "Increased cost competitiveness and superior product quality",
-      color: "green",
-      icon: "🎯"
     }
   ];
 
@@ -313,7 +267,7 @@ const Services = () => {
 
         {/* Service Principles - 3Cs and 3Ps */}
         <div className={`mb-20 transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`} ref={servicePrinciplesRef}>
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
+          <div className="flex flex-wrap justify-center gap-4 mb-8">
             {servicePrinciples.map((principle, index) => {
               const IconComponent = principle.icon;
               const colorClasses = {
@@ -370,9 +324,13 @@ const Services = () => {
                     <div className="grid md:grid-cols-3 gap-8">
                       {principle.items.map((item, idx) => {
                         const ItemIcon = item.icon;
+                        const itemColorClasses = {
+                          blue: "from-blue-500/80 to-blue-600/80",
+                          red: "from-red-500/80 to-red-600/80"
+                        };
                         return (
                           <div key={idx} className="text-center p-6 bg-gray-50/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-                            <div className={`${colorClasses[principle.color as keyof typeof colorClasses].split(' ')[0]} ${colorClasses[principle.color as keyof typeof colorClasses].split(' ')[1]} backdrop-blur-sm text-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4`}>
+                            <div className={`bg-gradient-to-br ${itemColorClasses[principle.color as keyof typeof itemColorClasses]} backdrop-blur-sm text-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4`}>
                               <ItemIcon className="h-8 w-8" />
                             </div>
                             <h4 className="text-xl font-semibold text-gray-900 mb-3">{item.title}</h4>
@@ -444,20 +402,19 @@ const Services = () => {
 
         {/* Robotic Applications */}
         <div className={`mb-20 transition-all duration-1000 delay-400 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`} ref={roboticApplicationsRef}>
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <h3 className="text-4xl font-bold text-gray-900 mb-4">Robotic Applications</h3>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               State-of-the-art robotic solutions for industrial finishing and automation
             </p>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
+          <div className="flex flex-wrap justify-center gap-4 mb-8">
             {roboticApplications.map((app, index) => {
               const IconComponent = app.icon;
               const colorClasses = {
                 blue: "bg-blue-600",
-                red: "bg-red-600",
-                purple: "bg-purple-600"
+                red: "bg-red-600"
               };
               
               return (
@@ -485,8 +442,7 @@ const Services = () => {
               const IconComponent = app.icon;
               const colorClasses = {
                 blue: "from-blue-600/90 to-blue-700/90",
-                red: "from-red-600/90 to-red-700/90",
-                purple: "from-purple-600/90 to-purple-700/90"
+                red: "from-red-600/90 to-red-700/90"
               };
               
               return (
@@ -656,9 +612,7 @@ const Services = () => {
                               <div className={`backdrop-blur-sm w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-6 ${
                                 app.color === 'blue' 
                                   ? 'bg-gradient-to-br from-blue-500/80 to-blue-600/80'
-                                  : app.color === 'red'
-                                  ? 'bg-gradient-to-br from-red-500/80 to-red-600/80'
-                                  : 'bg-gradient-to-br from-purple-500/80 to-purple-600/80'
+                                  : 'bg-gradient-to-br from-red-500/80 to-red-600/80'
                               }`}>
                                 <IconComponent className="h-12 w-12 text-white" />
                               </div>
@@ -678,82 +632,51 @@ const Services = () => {
 
         {/* Success Stories */}
         <div className={`mb-20 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <div className="bg-gradient-to-r from-blue-600/90 to-red-600/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 text-white">
-            <div className="text-center mb-8">
-              <Globe className="h-12 w-12 mx-auto mb-4" />
-              <h3 className="text-3xl font-bold mb-4">Proven Track Record</h3>
-              <p className="text-xl text-blue-100 max-w-4xl mx-auto leading-relaxed">
-                Our services portfolio is one of the key aspects behind our continuous relationships with customers. We have demonstrated our Services' capability with deft handling of such complex projects as relocation and recommissioning of complete plants from one region to another, increase in Paintshop output upto 50 percent with innovative solutions, thereby supporting our customers in their business strategies and growth.
-              </p>
+          <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 backdrop-blur-sm rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
+            {/* Background Pattern */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute inset-0" style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+              }}></div>
             </div>
             
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="text-center p-6 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
-                <div className="text-4xl mb-4">🏭</div>
-                <h4 className="text-xl font-bold mb-2">Plant Relocation</h4>
-                <p className="text-blue-100">Complete plant relocation and recommissioning across regions</p>
+            <div className="relative z-10">
+              <div className="text-center mb-12">
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full mb-6 shadow-lg">
+                  <Globe className="h-10 w-10 text-white" />
+                </div>
+                <h3 className="text-4xl font-bold mb-6 bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent">
+                  Proven Track Record
+                </h3>
+                <div className="w-24 h-1 bg-gradient-to-r from-amber-400 to-orange-500 mx-auto mb-6 rounded-full"></div>
+                <p className="text-xl text-slate-200 max-w-4xl mx-auto leading-relaxed">
+                  Our services portfolio is one of the key aspects behind our continuous relationships with customers. We have demonstrated our Services' capability with deft handling of such complex projects as relocation and recommissioning of complete plants from one region to another, increase in Paintshop output upto 50 percent with innovative solutions, thereby supporting our customers in their business strategies and growth.
+                </p>
               </div>
-              <div className="text-center p-6 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
-                <div className="text-4xl mb-4">📈</div>
-                <h4 className="text-xl font-bold mb-2">50% Output Increase</h4>
-                <p className="text-blue-100">Innovative solutions boosting Paintshop productivity</p>
-              </div>
-              <div className="text-center p-6 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
-                <div className="text-4xl mb-4">🤝</div>
-                <h4 className="text-xl font-bold mb-2">Long-term Partnerships</h4>
-                <p className="text-blue-100">Continuous relationships built on trust and results</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Smart Factory Section */}
-        <div className={`transition-all duration-1000 delay-600 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-gray-200/50">
-            <div className="bg-gradient-to-r from-blue-600/90 to-red-600/90 backdrop-blur-sm p-8 text-white text-center">
-              <div className="flex items-center justify-center mb-4">
-                <Zap className="h-8 w-8 mr-3" />
-                <h3 className="text-3xl font-bold">Digitization & Smart Factory</h3>
-              </div>
-              <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-                IoT architecture based on a 4-layered pyramid structure for comprehensive plant optimization
-              </p>
-            </div>
-
-            <div className="p-8">
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {smartFactoryLayers.map((layer, index) => {
-                  const colorClasses = {
-                    blue: "from-blue-500/80 to-blue-600/80 bg-blue-50/80 border-blue-200/50",
-                    red: "from-red-500/80 to-red-600/80 bg-red-50/80 border-red-200/50",
-                    purple: "from-purple-500/80 to-purple-600/80 bg-purple-50/80 border-purple-200/50",
-                    green: "from-green-500/80 to-green-600/80 bg-green-50/80 border-green-200/50"
-                  };
-                  
-                  return (
-                    <div key={index} className={`text-center p-6 rounded-2xl border-2 ${colorClasses[layer.color as keyof typeof colorClasses].split(' ').slice(2).join(' ')} hover:shadow-lg transition-all duration-300 group transform hover:scale-105 backdrop-blur-sm`}>
-                      <div className={`bg-gradient-to-br ${colorClasses[layer.color as keyof typeof colorClasses].split(' ')[0]} ${colorClasses[layer.color as keyof typeof colorClasses].split(' ')[1]} backdrop-blur-sm text-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl font-bold group-hover:rotate-12 transition-transform duration-300`}>
-                        {layer.number}
-                      </div>
-                      <div className="text-4xl mb-4">{layer.icon}</div>
-                      <h4 className="text-xl font-semibold text-gray-900 mb-3">{layer.title}</h4>
-                      <p className="text-gray-600 text-sm leading-relaxed">{layer.description}</p>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Process Flow */}
-              <div className="mt-12 flex justify-center">
-                <div className="flex items-center space-x-4 bg-gray-50/80 backdrop-blur-sm p-6 rounded-2xl border border-gray-200/50">
-                  {smartFactoryLayers.map((_, index) => (
-                    <React.Fragment key={index}>
-                      <div className="w-4 h-4 bg-blue-600 rounded-full animate-pulse"></div>
-                      {index < smartFactoryLayers.length - 1 && (
-                        <ArrowRight className="h-5 w-5 text-gray-400" />
-                      )}
-                    </React.Fragment>
-                  ))}
+              
+              <div className="grid md:grid-cols-3 gap-8">
+                <div className="text-center p-8 bg-gradient-to-br from-slate-800/50 to-slate-700/50 backdrop-blur-sm rounded-2xl border border-slate-600/30 hover:border-amber-400/50 transition-all duration-300 group hover:transform hover:scale-105">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mb-6 shadow-lg group-hover:shadow-blue-500/25 transition-all duration-300">
+                    <span className="text-2xl">🏭</span>
+                  </div>
+                  <h4 className="text-2xl font-bold mb-4 text-white">Plant Relocation</h4>
+                  <p className="text-slate-300 leading-relaxed">Complete plant relocation and recommissioning across regions with precision engineering and minimal downtime.</p>
+                </div>
+                
+                <div className="text-center p-8 bg-gradient-to-br from-slate-800/50 to-slate-700/50 backdrop-blur-sm rounded-2xl border border-slate-600/30 hover:border-green-400/50 transition-all duration-300 group hover:transform hover:scale-105">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full mb-6 shadow-lg group-hover:shadow-green-500/25 transition-all duration-300">
+                    <span className="text-2xl">📈</span>
+                  </div>
+                  <h4 className="text-2xl font-bold mb-4 text-white">50% Output Increase</h4>
+                  <p className="text-slate-300 leading-relaxed">Innovative solutions and process optimization boosting Paintshop productivity to unprecedented levels.</p>
+                </div>
+                
+                <div className="text-center p-8 bg-gradient-to-br from-slate-800/50 to-slate-700/50 backdrop-blur-sm rounded-2xl border border-slate-600/30 hover:border-purple-400/50 transition-all duration-300 group hover:transform hover:scale-105">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full mb-6 shadow-lg group-hover:shadow-purple-500/25 transition-all duration-300">
+                    <span className="text-2xl">🤝</span>
+                  </div>
+                  <h4 className="text-2xl font-bold mb-4 text-white">Long-term Partnerships</h4>
+                  <p className="text-slate-300 leading-relaxed">Continuous relationships built on trust, reliability, and consistent delivery of exceptional results.</p>
                 </div>
               </div>
             </div>
