@@ -17,6 +17,25 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    // Handle hash navigation when page loads with hash
+    if (location.hash) {
+      setTimeout(() => {
+        const element = document.querySelector(location.hash);
+        if (element) {
+          const headerHeight = 80; // Approximate header height
+          const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+          const offsetPosition = elementPosition - headerHeight - 20; // Extra 20px for breathing room
+          
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 500); // Longer delay to ensure page is fully loaded
+    }
+  }, [location.hash]);
+
   const handleHashNavigation = (hash: string) => {
     // Close dropdown
     setActiveDropdown(null);
@@ -30,9 +49,13 @@ const Header = () => {
       setTimeout(() => {
         const element = document.querySelector(hash);
         if (element) {
-          element.scrollIntoView({ 
-            behavior: 'smooth',
-            block: 'start'
+          const headerHeight = 80; // Approximate header height
+          const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+          const offsetPosition = elementPosition - headerHeight - 20; // Extra 20px for breathing room
+          
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
           });
         }
       }, 100);
