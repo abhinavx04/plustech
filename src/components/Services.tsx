@@ -7,6 +7,7 @@ const Services = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [activeRoboticTab, setActiveRoboticTab] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentMaterialImageIndex, setCurrentMaterialImageIndex] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   // Robotic images from the public/robotic folder
@@ -16,6 +17,13 @@ const Services = () => {
     '/robotic/9-2.png',
     '/robotic/10-2.png',
     '/robotic/11.png'
+  ];
+
+  // Automated material handling images from the public/automated-customer-material folder
+  const materialHandlingImages = [
+    '/automated-customer-material/12.png',
+    '/automated-customer-material/13.png',
+    '/automated-customer-material/14.png'
   ];
 
   useEffect(() => {
@@ -45,6 +53,17 @@ const Services = () => {
 
     return () => clearInterval(interval);
   }, [roboticImages.length]);
+
+  // Auto-scroll effect for material handling images
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentMaterialImageIndex((prevIndex) => 
+        prevIndex === materialHandlingImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 3000); // Change image every 3 seconds
+
+    return () => clearInterval(interval);
+  }, [materialHandlingImages.length]);
 
   const services = [
     {
@@ -478,12 +497,6 @@ const Services = () => {
                                     alt={`Robotic Painting Plant ${idx + 1}`}
                                     className="w-full h-full object-cover rounded-xl"
                                   />
-                                  {/* Overlay with image info */}
-                                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-xl">
-                                    <div className="absolute bottom-4 left-4 text-white">
-                                      <p className="text-sm font-medium">Robotic Painting Plant</p>
-                                    </div>
-                                  </div>
                                 </div>
                               ))}
                             </div>
@@ -525,10 +538,66 @@ const Services = () => {
                                 />
                               ))}
                             </div>
+                          </div>
+                        ) : app.id === 'material-handling' ? (
+                          // Auto-scrolling image carousel for Automated Material Handling
+                          <div className="bg-gradient-to-br from-gray-100/80 to-gray-200/80 backdrop-blur-sm rounded-2xl p-4 h-96 border border-gray-200/50 overflow-hidden relative">
+                            {/* Image Container */}
+                            <div className="relative w-full h-full overflow-hidden rounded-xl">
+                              {materialHandlingImages.map((image, idx) => (
+                                <div
+                                  key={idx}
+                                  className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
+                                    idx === currentMaterialImageIndex 
+                                      ? 'opacity-100 scale-100' 
+                                      : 'opacity-0 scale-105'
+                                  }`}
+                                >
+                                  <img
+                                    src={image}
+                                    alt={`Automated Material Handling ${idx + 1}`}
+                                    className="w-full h-full object-cover rounded-xl"
+                                  />
+                                </div>
+                              ))}
+                            </div>
 
-                            {/* Auto-scroll indicator */}
-                            <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium">
-                              Auto-scroll
+                            {/* Manual Navigation Arrows */}
+                            <button
+                              onClick={() => setCurrentMaterialImageIndex(prev => 
+                                prev === 0 ? materialHandlingImages.length - 1 : prev - 1
+                              )}
+                              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 backdrop-blur-sm text-white p-3 rounded-full hover:bg-black/70 transition-all duration-300 hover:scale-110 z-10"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                              </svg>
+                            </button>
+
+                            <button
+                              onClick={() => setCurrentMaterialImageIndex(prev => 
+                                prev === materialHandlingImages.length - 1 ? 0 : prev + 1
+                              )}
+                              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 backdrop-blur-sm text-white p-3 rounded-full hover:bg-black/70 transition-all duration-300 hover:scale-110 z-10"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            </button>
+
+                            {/* Navigation Dots */}
+                            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                              {materialHandlingImages.map((_, idx) => (
+                                <button
+                                  key={idx}
+                                  onClick={() => setCurrentMaterialImageIndex(idx)}
+                                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                                    idx === currentMaterialImageIndex 
+                                      ? 'bg-red-600 scale-125' 
+                                      : 'bg-white/60 hover:bg-white/80'
+                                  }`}
+                                />
+                              ))}
                             </div>
                           </div>
                         ) : (
