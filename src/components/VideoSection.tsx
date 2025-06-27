@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+giimport React, { useState, useRef } from 'react';
 import { Play, X, Volume2, VolumeX } from 'lucide-react';
 
 const VideoSection = () => {
