@@ -9,6 +9,8 @@ const Services = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentMaterialImageIndex, setCurrentMaterialImageIndex] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const servicePrinciplesRef = useRef<HTMLDivElement>(null);
+  const roboticApplicationsRef = useRef<HTMLDivElement>(null);
 
   // Robotic images from the public/robotic folder
   const roboticImages = [
@@ -41,6 +43,62 @@ const Services = () => {
     }
 
     return () => observer.disconnect();
+  }, []);
+
+  // Scroll-driven tab switching for Service Principles (3Cs/3Ps)
+  useEffect(() => {
+    const handleScroll = () => {
+      if (servicePrinciplesRef.current) {
+        const rect = servicePrinciplesRef.current.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        const elementTop = rect.top;
+        const elementHeight = rect.height;
+        
+        // Calculate scroll progress within the section
+        const scrollProgress = Math.max(0, Math.min(1, 
+          (windowHeight - elementTop) / (windowHeight + elementHeight)
+        ));
+        
+        // Switch tabs based on scroll position
+        if (scrollProgress > 0.5) {
+          setActiveTab(1); // Switch to 3Ps
+        } else {
+          setActiveTab(0); // Switch to 3Cs
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Scroll-driven tab switching for Robotic Applications
+  useEffect(() => {
+    const handleScroll = () => {
+      if (roboticApplicationsRef.current) {
+        const rect = roboticApplicationsRef.current.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        const elementTop = rect.top;
+        const elementHeight = rect.height;
+        
+        // Calculate scroll progress within the section
+        const scrollProgress = Math.max(0, Math.min(1, 
+          (windowHeight - elementTop) / (windowHeight + elementHeight)
+        ));
+        
+        // Switch tabs based on scroll position (3 sections)
+        if (scrollProgress < 0.33) {
+          setActiveRoboticTab(0); // Robotic Painting
+        } else if (scrollProgress < 0.66) {
+          setActiveRoboticTab(1); // Material Handling
+        } else {
+          setActiveRoboticTab(2); // Digitization
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Auto-scroll effect for robotic images
@@ -254,75 +312,70 @@ const Services = () => {
         </div>
 
         {/* Service Principles - 3Cs and 3Ps */}
-        <div className={`mb-20 transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <div className={`mb-20 transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`} ref={servicePrinciplesRef}>
           <div className="flex flex-wrap justify-center gap-4 mb-12">
             {servicePrinciples.map((principle, index) => {
               const IconComponent = principle.icon;
-              const isActive = activeTab === index;
+              const colorClasses = {
+                blue: "bg-blue-600",
+                red: "bg-red-600"
+              };
+              
               return (
                 <button
                   key={principle.id}
                   onClick={() => setActiveTab(index)}
-                  className={`flex items-center space-x-3 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 backdrop-blur-sm border-2 ${
-                    isActive
-                      ? principle.color === 'blue' 
-                        ? 'bg-blue-600/90 text-white shadow-2xl border-blue-500/50'
-                        : 'bg-red-600/90 text-white shadow-2xl border-red-500/50'
-                      : 'bg-white/80 text-gray-700 border-gray-200/50 hover:border-gray-300/50 hover:shadow-lg'
+                  className={`flex items-center px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 ${
+                    activeTab === index
+                      ? `${colorClasses[principle.color as keyof typeof colorClasses]} text-white shadow-lg`
+                      : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  <IconComponent className={`h-5 w-5 ${isActive ? 'text-white' : principle.color === 'blue' ? 'text-blue-600' : 'text-red-600'}`} />
-                  <span>{principle.title}</span>
+                  <IconComponent className="h-5 w-5 mr-2" />
+                  {principle.title}
+                  {activeTab === index && (
+                    <div className="ml-2 w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                  )}
                 </button>
               );
             })}
           </div>
 
-          {/* Principles Content */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-200/50 overflow-hidden">
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-gray-200/50">
             {servicePrinciples.map((principle, index) => {
               const IconComponent = principle.icon;
-              const isActive = activeTab === index;
+              const colorClasses = {
+                blue: "from-blue-600/90 to-blue-700/90",
+                red: "from-red-600/90 to-red-700/90"
+              };
               
               return (
                 <div
                   key={principle.id}
-                  className={`transition-all duration-500 ${
-                    isActive ? 'opacity-100 block' : 'opacity-0 hidden'
+                  className={`transition-all duration-700 ease-in-out ${
+                    activeTab === index
+                      ? 'opacity-100 transform translate-x-0 scale-100'
+                      : 'opacity-0 transform translate-x-8 scale-95 absolute inset-0 pointer-events-none'
                   }`}
                 >
-                  {/* Header */}
-                  <div className={`backdrop-blur-sm p-8 text-white ${
-                    principle.color === 'blue' 
-                      ? 'bg-gradient-to-r from-blue-600/90 to-blue-700/90'
-                      : 'bg-gradient-to-r from-red-600/90 to-red-700/90'
-                  }`}>
-                    <div className="flex items-center space-x-4 mb-4">
-                      <div className="bg-white/20 backdrop-blur-sm p-4 rounded-2xl">
-                        <IconComponent className="h-8 w-8" />
-                      </div>
-                      <div>
-                        <h4 className="text-3xl font-bold">{principle.title}</h4>
-                        <p className="text-lg opacity-90">{principle.subtitle}</p>
-                      </div>
+                  <div className={`bg-gradient-to-r ${colorClasses[principle.color as keyof typeof colorClasses]} backdrop-blur-sm p-8 text-white text-center`}>
+                    <div className="flex items-center justify-center mb-4">
+                      <IconComponent className="h-8 w-8 mr-3" />
+                      <h3 className="text-3xl font-bold">{principle.title}</h3>
                     </div>
+                    <p className="text-xl text-blue-100 max-w-3xl mx-auto">{principle.subtitle}</p>
                   </div>
 
-                  {/* Content */}
                   <div className="p-8">
                     <div className="grid md:grid-cols-3 gap-8">
                       {principle.items.map((item, idx) => {
                         const ItemIcon = item.icon;
                         return (
-                          <div key={idx} className="text-center p-6 rounded-2xl bg-gradient-to-br from-gray-50/80 to-white/80 backdrop-blur-sm border border-gray-200/50 hover:shadow-lg transition-all duration-300 group">
-                            <div className={`backdrop-blur-sm w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 ${
-                              principle.color === 'blue'
-                                ? 'bg-gradient-to-br from-blue-500/80 to-blue-600/80'
-                                : 'bg-gradient-to-br from-red-500/80 to-red-600/80'
-                            }`}>
-                              <ItemIcon className="h-8 w-8 text-white" />
+                          <div key={idx} className="text-center p-6 bg-gray-50/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                            <div className={`${colorClasses[principle.color as keyof typeof colorClasses].split(' ')[0]} ${colorClasses[principle.color as keyof typeof colorClasses].split(' ')[1]} backdrop-blur-sm text-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4`}>
+                              <ItemIcon className="h-8 w-8" />
                             </div>
-                            <h5 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h5>
+                            <h4 className="text-xl font-semibold text-gray-900 mb-3">{item.title}</h4>
                             <p className="text-gray-600 leading-relaxed">{item.description}</p>
                           </div>
                         );
@@ -390,90 +443,86 @@ const Services = () => {
         </div>
 
         {/* Robotic Applications */}
-        <div className={`mb-20 transition-all duration-1000 delay-400 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <div className={`mb-20 transition-all duration-1000 delay-400 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`} ref={roboticApplicationsRef}>
           <div className="text-center mb-12">
             <h3 className="text-4xl font-bold text-gray-900 mb-4">Robotic Applications</h3>
-            <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
-              Advanced automation solutions for precision painting and material handling across various industries.
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              State-of-the-art robotic solutions for industrial finishing and automation
             </p>
           </div>
 
-          {/* Robotic Applications Tabs */}
           <div className="flex flex-wrap justify-center gap-4 mb-12">
             {roboticApplications.map((app, index) => {
               const IconComponent = app.icon;
-              const isActive = activeRoboticTab === index;
+              const colorClasses = {
+                blue: "bg-blue-600",
+                red: "bg-red-600",
+                purple: "bg-purple-600"
+              };
+              
               return (
                 <button
                   key={app.id}
                   onClick={() => setActiveRoboticTab(index)}
-                  className={`flex items-center space-x-3 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 backdrop-blur-sm border-2 ${
-                    isActive
-                      ? app.color === 'blue' 
-                        ? 'bg-blue-600/90 text-white shadow-2xl border-blue-500/50'
-                        : app.color === 'red'
-                        ? 'bg-red-600/90 text-white shadow-2xl border-red-500/50'
-                        : 'bg-purple-600/90 text-white shadow-2xl border-purple-500/50'
-                      : 'bg-white/80 text-gray-700 border-gray-200/50 hover:border-gray-300/50 hover:shadow-lg'
+                  className={`flex items-center px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 ${
+                    activeRoboticTab === index
+                      ? `${colorClasses[app.color as keyof typeof colorClasses]} text-white shadow-lg`
+                      : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  <IconComponent className={`h-5 w-5 ${isActive ? 'text-white' : app.color === 'blue' ? 'text-blue-600' : app.color === 'red' ? 'text-red-600' : 'text-purple-600'}`} />
-                  <span>{app.title}</span>
+                  <IconComponent className="h-5 w-5 mr-2" />
+                  {app.title}
+                  {activeRoboticTab === index && (
+                    <div className="ml-2 w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                  )}
                 </button>
               );
             })}
           </div>
 
-          {/* Robotic Applications Content */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-200/50 overflow-hidden">
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-gray-200/50">
             {roboticApplications.map((app, index) => {
               const IconComponent = app.icon;
-              const isActive = activeRoboticTab === index;
+              const colorClasses = {
+                blue: "from-blue-600/90 to-blue-700/90",
+                red: "from-red-600/90 to-red-700/90",
+                purple: "from-purple-600/90 to-purple-700/90"
+              };
               
               return (
                 <div
                   key={app.id}
-                  className={`transition-all duration-500 ${
-                    isActive ? 'opacity-100 block' : 'opacity-0 hidden'
+                  className={`transition-all duration-700 ease-in-out ${
+                    activeRoboticTab === index
+                      ? 'opacity-100 transform translate-x-0 scale-100'
+                      : 'opacity-0 transform translate-x-8 scale-95 absolute inset-0 pointer-events-none'
                   }`}
                 >
-                  {/* Header */}
-                  <div className={`backdrop-blur-sm p-8 text-white ${
-                    app.color === 'blue' 
-                      ? 'bg-gradient-to-r from-blue-600/90 to-blue-700/90'
-                      : app.color === 'red'
-                      ? 'bg-gradient-to-r from-red-600/90 to-red-700/90'
-                      : 'bg-gradient-to-r from-purple-600/90 to-purple-700/90'
-                  }`}>
-                    <div className="flex items-center space-x-4 mb-4">
-                      <div className="bg-white/20 backdrop-blur-sm p-4 rounded-2xl">
-                        <IconComponent className="h-8 w-8" />
-                      </div>
-                      <div>
-                        <h4 className="text-3xl font-bold">{app.title}</h4>
-                        <p className="text-lg opacity-90">{app.subtitle}</p>
-                      </div>
+                  <div className={`bg-gradient-to-r ${colorClasses[app.color as keyof typeof colorClasses]} backdrop-blur-sm p-8 text-white text-center`}>
+                    <div className="flex items-center justify-center mb-4">
+                      <IconComponent className="h-8 w-8 mr-3" />
+                      <h3 className="text-3xl font-bold">{app.title}</h3>
                     </div>
+                    <p className="text-xl text-blue-100 max-w-3xl mx-auto">{app.subtitle}</p>
                   </div>
 
-                  {/* Content */}
                   <div className="p-8">
-                    <div className="grid lg:grid-cols-2 gap-12">
-                      {/* Text Content */}
-                      <div>
-                        <p className="text-gray-700 leading-relaxed text-lg mb-8">
-                          {app.description}
-                        </p>
+                    <div className="grid lg:grid-cols-2 gap-12 items-start">
+                      {/* Content */}
+                      <div className="space-y-6">
+                        <p className="text-gray-700 leading-relaxed text-lg">{app.description}</p>
                         
-                        <h5 className="text-xl font-bold text-gray-900 mb-4">Key Features</h5>
-                        <ul className="space-y-3">
-                          {app.features.map((feature, idx) => (
-                            <li key={idx} className="flex items-center text-gray-700">
-                              <CheckCircle className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" />
-                              <span className="font-medium">{feature}</span>
-                            </li>
-                          ))}
-                        </ul>
+                        <div>
+                          <h4 className="text-xl font-semibold text-gray-900 mb-4">Key Features:</h4>
+                          <ul className="space-y-3">
+                            {app.features.map((feature, idx) => (
+                              <li key={idx} className="flex items-center text-gray-700">
+                                <CheckCircle className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" />
+                                <span className="font-medium">{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
 
                       {/* Image/Animation */}
