@@ -630,6 +630,77 @@ const Services = () => {
           </div>
         </div>
 
+        {/* Digitization & Smart Factory Section */}
+        <div className={`mb-20 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-gray-200/50">
+            <div className="bg-gradient-to-r from-purple-600/90 to-purple-700/90 backdrop-blur-sm p-8 text-white text-center">
+              <div className="flex items-center justify-center mb-4">
+                <Cpu className="h-8 w-8 mr-3" />
+                <h3 className="text-3xl font-bold">Digitization & Smart Factory</h3>
+              </div>
+              <p className="text-xl text-purple-100 max-w-3xl mx-auto">IoT-based intelligent solutions for comprehensive plant optimization</p>
+            </div>
+
+            <div className="p-8">
+              <div className="grid lg:grid-cols-2 gap-12 items-start">
+                {/* Content */}
+                <div className="space-y-6">
+                  <p className="text-gray-700 leading-relaxed text-lg">
+                    Advanced digitization solutions with IoT architecture for comprehensive plant optimization and smart factory implementation. Our smart factory solutions provide real-time monitoring, predictive analytics, and data-driven decision making for enhanced operational efficiency.
+                  </p>
+                  
+                  <div>
+                    <h4 className="text-xl font-semibold text-gray-900 mb-4">Key Features:</h4>
+                    <ul className="space-y-3">
+                      <li className="flex items-center text-gray-700">
+                        <CheckCircle className="w-5 h-5 text-purple-600 mr-3 flex-shrink-0" />
+                        <span className="font-medium">IoT Architecture & Integration</span>
+                      </li>
+                      <li className="flex items-center text-gray-700">
+                        <CheckCircle className="w-5 h-5 text-purple-600 mr-3 flex-shrink-0" />
+                        <span className="font-medium">Real-time Monitoring Systems</span>
+                      </li>
+                      <li className="flex items-center text-gray-700">
+                        <CheckCircle className="w-5 h-5 text-purple-600 mr-3 flex-shrink-0" />
+                        <span className="font-medium">Predictive Analytics</span>
+                      </li>
+                      <li className="flex items-center text-gray-700">
+                        <CheckCircle className="w-5 h-5 text-purple-600 mr-3 flex-shrink-0" />
+                        <span className="font-medium">Smart Automation</span>
+                      </li>
+                      <li className="flex items-center text-gray-700">
+                        <CheckCircle className="w-5 h-5 text-purple-600 mr-3 flex-shrink-0" />
+                        <span className="font-medium">Data-driven Decision Making</span>
+                      </li>
+                      <li className="flex items-center text-gray-700">
+                        <CheckCircle className="w-5 h-5 text-purple-600 mr-3 flex-shrink-0" />
+                        <span className="font-medium">Plant Optimization</span>
+                      </li>
+                      <li className="flex items-center text-gray-700">
+                        <CheckCircle className="w-5 h-5 text-purple-600 mr-3 flex-shrink-0" />
+                        <span className="font-medium">Intelligent Systems</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Smart Factory Visualization */}
+                <div className="relative">
+                  <div className="bg-gradient-to-br from-purple-100/80 to-purple-200/80 backdrop-blur-sm rounded-2xl p-8 h-96 border border-purple-200/50 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="bg-gradient-to-br from-purple-500/80 to-purple-600/80 backdrop-blur-sm w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <Cpu className="h-12 w-12 text-white" />
+                      </div>
+                      <p className="text-gray-700 font-medium">Smart Factory Solutions</p>
+                      <p className="text-gray-600 text-sm">IoT & Digitization Platform</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Success Stories */}
         <div className={`mb-20 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 backdrop-blur-sm rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
